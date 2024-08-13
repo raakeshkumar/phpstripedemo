@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Response</title>
+</head>
+<body>
+    <div class="alert">
+
+    </div>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script>
+        const stripe = Stripe("pk_test_MBU0mw3KTWxbFtpSoJXyMRYW00gwrFhS5P");
+
+        checkPaymentStatus();
+        async function checkPaymentStatus() {
+            const clientSecret = new URLSearchParams(window.location.search).get("payment_intent_client_secret");
+
+            if(!clientSecret) {
+                return;
+            }
+            const {paymentIntent} = await stripe.retrievePaymentIntent(clientSecret);
+
+            if(paymentIntent.status == 'succeeded') {
+                alert("Payment Succeeded");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Processor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        #st-payment-form {
+            width: 500px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+    </style>
+</head>
+<body>
+    <form action="" id="st-payment-form">
+        <div id="payment-element">
+
+        </div>
+        <button id="submit" type="submit" class="btn btn-primary my-2">
+            Pay Now
+        </button>
+    </form>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        const stripe = Stripe("pk_test_MBU0mw3KTWxbFtpSoJXyMRYW00gwrFhS5P");
+        const items = [{id: "Apple-Phone"}];
+
+        let elements;
+
+        initialize();
+
+        document.querySelector("#st-payment-form").addEventListener("submit", handleSubmit);
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const {error} = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url : "http://localhost:8000/response.html"
+                }
+            });
+
+            // Error handler
+
+            if(error.type == 'card_error') {
+                //Show message here
+            }
+        }
+
+        async function initialize() {
+            const {clientSecret} = await fetch("http://localhost:8000/payment.php", {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({items})
+            }).then((response) => response.json());
+
+            elements = stripe.elements({clientSecret});
+
+            const paymentElement = elements.create("payment");
+            paymentElement.mount("#payment-element");
+        }
+
+
+    </script>
+</body>
+</html>
